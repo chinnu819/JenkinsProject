@@ -1,0 +1,25 @@
+node('master') {
+
+stage ('scm_checkout') {checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/ganeshhp/Maven-petclinic-project.git']]])
+}
+
+stage ('build_and_package') {
+bat label: '', script: 'mvn clean package'
+}
+
+stage ('archive_artifacts') {
+archiveArtifacts 'target/*.war'
+}
+
+}
+
+
+def server=Artifactory.server 'artifactory'
+def uploadspec = """{
+	"files": [
+	{
+	"pattern": "target/petclinic.war",
+	"target": "petclinic/"
+	}
+				]
+				}"""
