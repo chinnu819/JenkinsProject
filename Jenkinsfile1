@@ -1,0 +1,29 @@
+pipeline{
+agent none
+	stages{
+	stage('SCM_Checkout'){
+	agent{label "node1"}
+			steps{
+			checkout([$class:'GitSCM',
+			branches:[[name:'*/master']]
+			doGenerateSubmoduleConfiguration:false
+			extenstions:[],
+			submoduleCfg:[],
+			userRemoteConfigs: [[url: 'https://github.com/ganeshhp//Maven-petclinic-project.git']]])
+				}
+		}
+		
+	stage('code-validation'){
+	agent{label 'master'}
+	steps{
+	sh 'mvn-f pom.xml sonar:sonar'
+	}
+	}
+	stage('Test and package'){
+	agent{label 'master'}
+	steps{
+	sh 'mvn-f pom.xml package'
+	}
+	}
+}
+}
